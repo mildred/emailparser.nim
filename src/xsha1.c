@@ -42,7 +42,7 @@
 
 #ifndef HAVE_SSL
 
-#include <config.h>
+#include "config.h"
 #include <string.h>
 
 /*

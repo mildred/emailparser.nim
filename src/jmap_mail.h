@@ -44,7 +44,7 @@
 #ifndef JMAP_MAIL_H
 #define JMAP_MAIL_H
 
-#include <config.h>
+#include "config.h"
 
 #include <jansson.h>
 // #include "hash.h"

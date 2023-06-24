@@ -43,7 +43,7 @@
  * Start Date: 2013/02/12
  */
 
-#include <config.h>
+#include "config.h"
 
 #include <string.h>
 

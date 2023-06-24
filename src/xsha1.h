@@ -43,7 +43,7 @@
 #ifndef LIB_XSHA1_H
 #define LIB_XSHA1_H
 
-#include <config.h>
+#include "config.h"
 
 #ifdef HAVE_SSL
 

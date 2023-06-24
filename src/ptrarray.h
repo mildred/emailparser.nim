@@ -46,7 +46,7 @@
 #ifndef __CYRUS_PTRARRAY_H__
 #define __CYRUS_PTRARRAY_H__
 
-#include <config.h>
+#include "config.h"
 #include <sys/types.h>
 
 typedef struct

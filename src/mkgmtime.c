@@ -90,7 +90,7 @@
  * discovered it - gnb@fastmail.fm
  */
 
-#include <config.h>
+#include "config.h"
 
 #if HAVE_TIMEGM
 #include <time.h>

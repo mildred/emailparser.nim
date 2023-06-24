@@ -43,7 +43,7 @@
 #ifndef INCLUDED_XSTRLCPY_H
 #define INCLUDED_XSTRLCPY_H
 
-#include <config.h>
+#include "config.h"
 
 /* for size_t */
 #include <stdio.h>

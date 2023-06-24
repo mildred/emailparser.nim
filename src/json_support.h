@@ -45,7 +45,7 @@
 #ifndef JSON_SUPPORT_H
 #define JSON_SUPPORT_H
 
-// #include <config.h>
+// #include "config.h"
 #include <jansson.h>
 
 #include "util.h"
