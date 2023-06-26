@@ -56,6 +56,31 @@ proc msg_to_json(msg: ptr CyrusMsg, want_headers: cstring, want_bodyheaders: cst
 proc msg_get_blob(msg: ptr CyrusMsg, blob_id: cstring, expected_size: csize_t): cstring {.importc.}
 proc free(str: pointer) {.importc.}
 
+type struct_param {.importc: "struct param".} = ptr object
+  next: struct_param
+  attribute: cstring
+  value: cstring
+
+proc c_message_parse_type(header: cstring, typep: var cstring, subtypep: var cstring, paramp: var struct_param) {.importc: "message_parse_type".}
+
+proc message_parse_type*(header: string, typ: var string, subtype: var string, param: var TableRef[string,string]) =
+  var ctyp: cstring
+  var csubtype: cstring
+  var cparam: struct_param
+  c_message_parse_type(cstring(header), ctyp, csubtype, cparam)
+  typ = $ctyp
+  free(ctyp)
+  subtype = $csubtype
+  free(csubtype)
+  param = newTable[string,string]()
+  while cparam != nil:
+    param[$cparam.attribute] = $cparam.value
+    let next = cparam.next
+    free(cparam.attribute)
+    free(cparam.value)
+    free(cparam)
+    cparam = next
+
 proc envelope_to_jmap(msg: ptr CyrusMsg, want_headers: seq[string] = @[], want_bodyheaders: seq[string] = @[]): JsonNode =
   var arg_headers: string
   var arg_bodyheaders: string
@@ -102,3 +127,51 @@ proc envelope_to_jmap*(mime_content: string, attachments: var Table[string, stri
     let size    = attach["size"].get_int
     let blob    = msg_get_blob(msg, cstring(blob_id), csize_t(size))
     attachments[blob_id] = $blob
+
+proc header_name(header: string): string =
+  result = ""
+  var i = 0
+  while i < header.len and header[i] != ':':
+    result.add(header[i].to_lower_ascii)
+    i += 1
+
+proc parse_header_get_boundary(header: string, boundary: var string): string =
+  result = header
+  if header_name(header) == "content-type":
+    var typ: string
+    var subtype: string
+    var attrs: TableRef[string,string]
+    message_parse_type(header, typ, subtype, attrs)
+    if "boundary" in attrs:
+      boundary = attrs["boundary"]
+
+proc parse_headers(mime: string, headers: var seq[string], crlf: var string, body: var string, boundary: var string) =
+  headers = @[]
+  body = ""
+  crlf = ""
+  boundary = ""
+  var i = 0
+  var start = 0;
+  while i < mime.len:
+    # Beginning of line
+    if i == 0 or mime[i-1] == '\n':
+      # Line continuation
+      if mime[i] == ' ' or mime[i] == '\t':
+        i += 1
+        continue
+
+      let is_end_of_headers = i+1 < mime.len and mime[i] == '\r' and mime[i+1] == '\n'
+
+      # This is the start of a header line, save last header first
+      if i != 0 and not is_end_of_headers: headers.add(parse_header_get_boundary(mime[start..i-1], boundary))
+      start = i
+
+      # End of headers (blank line)
+      if is_end_of_headers:
+        crlf = mime[i..i+1]
+        if i+2 < mime.len: body = mime[i+2..mime.len-1]
+        return
+    i += 1
+  # only headers and no body, fall through the loop, save last header
+  if i != 0: headers.add(parse_header_get_boundary(mime[start..i-1], boundary))
+

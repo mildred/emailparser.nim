@@ -41,6 +41,17 @@ void dump_log() {
 // int get_attachments_count(struct cyrusmsg *msg);
 // struct buf get_attachment_nth(struct cyrusmsg *msg, int i);
 
+struct msg_decoded_part {
+};
+
+void msg_decode_part(const char *mime_text, size_t len, struct msg_decoded_part *res) {
+    // message_parse_headers
+
+    // message_header_lookup: parse header title and value, return header type
+    // and switch on it to parse value. The source string must contain the
+    // header followed by \r\n and optionally followed by the rest of the
+    // message. see message.c
+}
 
 __attribute__((__visibility__("default")))
 struct cyrusmsg *msg_parse(const char *mime_text, size_t len) {
