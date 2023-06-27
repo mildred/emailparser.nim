@@ -135,26 +135,91 @@ proc header_name(header: string): string =
     result.add(header[i].to_lower_ascii)
     i += 1
 
+proc header_value(header: string): string =
+  result = ""
+  var i = 0
+  while i < header.len and header[i] != ':':
+    i += 1
+  if i+1 < header.len:
+    result = header[i+1 .. header.len-1]
+
 proc parse_header_get_boundary(header: string, boundary: var string): string =
   result = header
   if header_name(header) == "content-type":
     var typ: string
     var subtype: string
     var attrs: TableRef[string,string]
-    message_parse_type(header, typ, subtype, attrs)
-    if "boundary" in attrs:
-      boundary = attrs["boundary"]
+    message_parse_type(header_value(header), typ, subtype, attrs)
+    if "BOUNDARY" in attrs:
+      boundary = attrs["BOUNDARY"]
 
-proc parse_headers(mime: string, headers: var seq[string], crlf: var string, body: var string, boundary: var string) =
+type Part* = object
+  boundary*: string
+  headers*: seq[string]
+  crlf*: string
+  body*: string # or MIME prologue
+  sub_parts*: seq[Part]
+
+func is_start_line(mime: string, i: int): bool =
+  return i == 0 or (i > 1 and mime[i-2] == '\r' and mime[i-1] == '\n')
+
+func has_substr_at(mime: string, i: int, sub: string): bool = 
+  let j = i + len(sub) - 1
+  if j < len(mime):
+    return mime[i..j] == sub
+  else:
+    return false
+
+func has_substr_at_end(mime: string, i: int, sub: string): bool = 
+  let j = i + len(sub) - 1
+  if j == len(mime) - 1:
+    return mime[i..j] == sub
+  else:
+    return false
+
+type Stop = object
+  stop: bool
+  boundary: string
+  i, j: int
+  final: bool
+
+# RFC1341: the start line CRLF is considered to be part of the boundary
+func is_stop_boundary(mime: string, i: int, boundaries: seq[string], stop: var Stop): bool =
+  if i != 0 and mime[i] != '\r':
+    return false
+  for boundary in boundaries:
+    if i == 0 and mime[i] == '-':
+      if has_substr_at(mime, i, "--" & boundary & "\r\n"):
+        stop = Stop(stop: true, boundary: boundary, i: i, j: i + len(boundary) + 4, final: false)
+        return true
+      if has_substr_at(mime, i, "--" & boundary & "--\r\n"):
+        stop = Stop(stop: true, boundary: boundary, i: i, j: i + len(boundary) + 6, final: true)
+        return true
+      if has_substr_at_end(mime, i, "--" & boundary & "--"):
+        stop = Stop(stop: true, boundary: boundary, i: i, j: i + len(boundary) + 4, final: true)
+        return true
+    if mime[i] == '\r':
+      if has_substr_at(mime, i, "\r\n--" & boundary & "\r\n"):
+        stop = Stop(stop: true, boundary: boundary, i: i, j: i + len(boundary) + 6, final: false)
+        return true
+      if has_substr_at(mime, i, "\r\n--" & boundary & "--\r\n"):
+        stop = Stop(stop: true, boundary: boundary, i: i, j: i + len(boundary) + 8, final: true)
+        return true
+      if has_substr_at_end(mime, i, "\r\n--" & boundary & "--"):
+        stop = Stop(stop: true, boundary: boundary, i: i, j: i + len(boundary) + 6, final: true)
+        return true
+  return false
+
+
+proc parse_headers(mime: string, i: var int, headers: var seq[string], crlf: var string, body: var string, boundary: var string) =
   headers = @[]
   body = ""
   crlf = ""
   boundary = ""
-  var i = 0
   var start = 0;
   while i < mime.len:
     # Beginning of line
-    if i == 0 or mime[i-1] == '\n':
+    if is_start_line(mime, i):
       # Line continuation
       if mime[i] == ' ' or mime[i] == '\t':
         i += 1
@@ -175,3 +240,88 @@ proc parse_headers(mime: string, headers: var seq[string], crlf: var string, bod
   # only headers and no body, fall through the loop, save last header
   if i != 0: headers.add(parse_header_get_boundary(mime[start..i-1], boundary))
 
+proc parse_mime(mime: string, i: var int, boundaries: seq[string], stop: var Stop, part: var Part) =
+  part.crlf = ""
+  part.body = ""
+  part.sub_parts = @[]
+  part.headers = @[]
+
+  # Parse headers
+  var next_boundary: string = ""
+  var body_boundary: string = ""
+  var start = i;
+  while true:
+    if i >= mime.len or is_stop_boundary(mime, i, boundaries, stop):
+      if start < i: part.headers.add(parse_header_get_boundary(mime[start .. i-1], body_boundary))
+      return
+    if is_start_line(mime, i):
+      let is_blank_line = has_substr_at(mime, i, "\r\n")
+      if is_blank_line:
+        if start < i: part.headers.add(parse_header_get_boundary(mime[start .. i-1], body_boundary))
+        break
+      let is_line_continuation = (mime[i] == ' ' or mime[i] == '\t')
+      if not is_line_continuation:
+        if start < i: part.headers.add(parse_header_get_boundary(mime[start .. i-1], body_boundary))
+        start = i
+    i += 1
+
+  # Parse CRLF
+  start = i
+  assert has_substr_at(mime, i, "\r\n")
+  i += 2
+  part.crlf = mime[start .. i-1]
+
+  # Parse prologue
+  start = i
+  while true:
+    if i >= len(mime) or is_stop_boundary(mime, i, boundaries, stop):
+      if start < i:
+        part.body = mime[start .. i-1]
+      return
+    if body_boundary != "" and has_substr_at(mime, i, "\r\n--" & body_boundary & "\r\n"):
+      if start < i: part.body = mime[start .. i-1]
+      start = i
+      i += len(body_boundary) + 6
+      next_boundary = mime[start .. i-1]
+      break
+    i += 1
+
+  # Parse parts
+  while true:
+    var sub_part: Part
+    sub_part.boundary = next_boundary
+    parse_mime(mime, i, boundaries & @[body_boundary], stop, sub_part)
+    part.sub_parts.add(sub_part)
+
+    if i >= mime.len or (stop.stop and stop.boundary != body_boundary):
+      return
+
+    next_boundary = mime[stop.i .. stop.j-1]
+    i = stop.j
+
+    if stop.final: break
+
+    stop = Stop()
+    i += 1
+
+  # Parse epilogue
+  stop = Stop()
+  start = i
+  var sub_part: Part
+  sub_part.headers = @[]
+  sub_part.crlf = ""
+  sub_part.boundary = next_boundary
+  sub_part.sub_parts = @[]
+  sub_part.body = ""
+  while true:
+    if i >= len(mime) or is_stop_boundary(mime, i, boundaries, stop):
+      if start < i:
+        sub_part.body = mime[start .. i-1]
+      part.sub_parts.add(sub_part)
+      return
+    i += 1
+
+proc parse_email*(mime: string): Part =
+  var i = 0
+  var stop: Stop
+  parse_mime(mime, i, @[], stop, result)

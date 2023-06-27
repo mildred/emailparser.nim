@@ -15,6 +15,50 @@ import emailparser
 test "does not crash":
   discard envelope_to_jmap("")
 
+test "split MIME":
+  let part = parse_email("""
+From:  Nathaniel Borenstein <nsb@bellcore.com>
+To: Ned Freed <ned@innosoft.com>
+Subject: Formatted text mail
+ with line continuation
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary=boundary42
+
+prologue
+--boundary42
+Content-Type: text/plain; charset=us-ascii
+
+...plain text version of message goes here....
+
+--boundary42
+Content-Type: text/richtext
+
+.... richtext version of same message goes here ...
+--boundary42
+Content-Type: text/x-whatever
+
+.... fanciest formatted version of same  message  goes  here
+...
+--boundary42--
+epilogue
+""".replace("\n", "\r\n"))
+  # echo part
+  assert part.headers.len == 5
+  assert part.sub_parts.len == 4
+  assert part.body == "prologue"
+  assert part.sub_parts[0].boundary == "\r\n--boundary42\r\n"
+  assert part.sub_parts[0].headers.len == 1
+  assert part.sub_parts[0].body == "...plain text version of message goes here....\r\n"
+  assert part.sub_parts[1].boundary == "\r\n--boundary42\r\n"
+  assert part.sub_parts[1].headers.len == 1
+  assert part.sub_parts[1].body == ".... richtext version of same message goes here ..."
+  assert part.sub_parts[2].boundary == "\r\n--boundary42\r\n"
+  assert part.sub_parts[2].headers.len == 1
+  assert part.sub_parts[2].body == ".... fanciest formatted version of same  message  goes  here\r\n..."
+  assert part.sub_parts[3].boundary == "\r\n--boundary42--\r\n"
+  assert part.sub_parts[3].headers.len == 0
+  assert part.sub_parts[3].body == "epilogue\r\n"
+
 test "parses email":
   let res = envelope_to_jmap("""
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ietf.org; s=ietf1;
@@ -83,7 +127,7 @@ https://www.ietf.org/mailman/listinfo/jmap
 """.replace("\n", "\r\n"))
   assert res.is_some
   let email = res.get
-  echo email.pretty
+  # echo email.pretty
   assert email["to"][0]["email"].get_str == "jmap@ietf.org"
   assert email["to"][0]["name"].kind == JNull
   assert email["subject"].get_str == "[Jmap] Milestones changed for jmap WG"
