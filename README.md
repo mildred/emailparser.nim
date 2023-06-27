@@ -1,8 +1,20 @@
 # Email parser
 
-Based on <https://github.com/josephg/mime-to-jmap> which itself is based on the
-Cyrus-IMAP code. C code is extracted from Cyrus and is compiled as part of the
-Nim sources.
+This is a MIME E-mail parser for Nim. It features a basic parser that can parse
+big blocks of a MIME multipart message (headers, body, multipart body parts). It
+does not parse the inside of the header fields nor handle content encoding.
+
+It also features Cyrus code based on <https://github.com/josephg/mime-to-jmap>
+that can parse all specifics of a mail message. The Cyrus code can parse a whole
+message and return a JsonNode compatible with the JMAP data structure. It
+features text snippets and easy handling of multuipart messages.
+
+Parsing small blocks (a MIME part, a header line, ...) can be performed using
+the Cyrus IMAP code but this is not done (except for the Content-Type header
+parsing). This is the next thing on the roadmap.
+
+This library was created to be able to split messages in small parts and store
+each of those parts in database for later processing.
 
 ## Dependencies
 
@@ -11,6 +23,12 @@ Nim sources.
 - `jansson-devel`
 
     sudo dnf install libicu-devel libuuid-devel jansson-devel
+
+The Cyrus C code is bundled within the Nim code using the `{.compile.}` pragma.
+Only the above dependencies needs to be met to ensure that the C code can
+compile. `libicu` is for character set encoding, uuid is probably for generating
+unique identifiers and jansson is required to generate the JSON data structure
+returned by the library.
 
 ## LICENSE
 
