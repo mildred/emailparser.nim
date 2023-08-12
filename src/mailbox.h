@@ -507,7 +507,9 @@ struct MsgFlagMap {
     MsgFlags flag;
 };
 
+EXTERN
 unsigned mailbox_cached_header(const char *s);
+EXTERN
 unsigned mailbox_cached_header_inline(const char *text);
 
 // typedef unsigned mailbox_decideproc_t(struct mailbox *mailbox,

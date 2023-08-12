@@ -55,6 +55,8 @@
 /* handy string manipulation functions */
 #ifndef HAVE_STRLCPY
 extern size_t strlcpy(char *dst, const char *src, size_t len);
+#else
+#error should not have strlcpy
 #endif
 
 #endif /* INCLUDED_XSTRLCPY_H */

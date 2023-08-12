@@ -61,10 +61,13 @@ typedef struct
 #define RFC822TOK_INITIALIZER \
     { BUF_INITIALIZER, NULL, 0 }
 
+EXTERN
 void rfc822tok_init(rfc822tok_t *, const char *base,
                     unsigned int len, unsigned int flags);
+EXTERN
 void rfc822tok_init_buf(rfc822tok_t *, const struct buf *,
                         unsigned int flags);
+EXTERN
 void rfc822tok_fini(rfc822tok_t *);
 
 /* Advance to the next token and return it.  Tokens may be several ASCII
@@ -73,6 +76,7 @@ void rfc822tok_fini(rfc822tok_t *);
  * have associated text; if @textp is non-NULL, fill it in with a
  * pointer to the text in an internal buffer which is valid until the
  * next call and can be written e.g. for further parsing. */
+EXTERN
 int rfc822tok_next(rfc822tok_t *, char **textp);
 
 #endif /* __CYRUS__RFC822TOK_H__ */

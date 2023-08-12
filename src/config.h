@@ -3,6 +3,15 @@
 
 #include <time.h>
 
+#define strlcpy native_strlcpy
+#include <string.h>
+#undef strlcpy
+#ifdef HAVE_STRLCPY
+#undef HAVE_STRLCPY
+#endif
+
+#define NO_BACKTRACE 1
+
 #define TIME_HAS_GMTOFF 1
 
 #define IMAP_MESSAGE_BADHEADER 1
@@ -35,9 +44,17 @@
 #define LEAK_TRACE 1
 #endif
 
-#if HAVE_VISIBILITY
-// Ignore the EXPORTED macro since we don't care
-#define EXPORTED //__attribute__((__visibility__("default")))
+#if 1
+// Make EXPORTED statements static as all code is bundled by Nim in a single
+// compilation unit and we want to avoid name conflicts
+#define EXPORTED static
+// Also redefine extern as static, extern us used in header files to declare
+// functions and they must be declared static too.
+#define extern static
+#define EXTERN static
+#define HIDDEN static
+#elif HAVE_VISIBILITY
+#define EXPORTED __attribute__((__visibility__("default")))
 #define HIDDEN   __attribute__((__visibility__("hidden")))
 #else
 #define EXPORTED

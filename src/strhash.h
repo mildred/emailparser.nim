@@ -42,6 +42,7 @@
 
 #ifndef _STRHASH_H_
 
+EXTERN
 unsigned strhash(const char *string);
 
 #endif /* _STRHASH_H_ */

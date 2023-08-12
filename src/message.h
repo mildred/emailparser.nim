@@ -188,7 +188,8 @@ extern void message_write_xdrstring(struct buf *buf, const struct buf *s);
 //                                     const struct body *body));
 extern void message_free_body P((struct body *body));
 
-extern void message_parse_type(const char *hdr, char **typep, char **subtypep, struct param **paramp);
+// extern
+void message_parse_type(const char *hdr, char **typep, char **subtypep, struct param **paramp);
 extern void message_parse_disposition(const char *hdr, char **hdpr, struct param **paramp);
 
 /* NOTE - scribbles on its input */

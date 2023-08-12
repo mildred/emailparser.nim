@@ -40,6 +40,9 @@
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#ifndef chartable_h
+#define chartable_h
+
 struct charmap {
     unsigned int c;
     unsigned char next;
@@ -65,3 +68,5 @@ extern const int chartables_translation[][256];
 extern const struct charset chartables_charset_table[];
 extern const int chartables_num_charsets;
 extern const struct charset_alias charset_aliases[];
+
+#endif

@@ -131,3 +131,53 @@ https://www.ietf.org/mailman/listinfo/jmap
   assert email["to"][0]["email"].get_str == "jmap@ietf.org"
   assert email["to"][0]["name"].kind == JNull
   assert email["subject"].get_str == "[Jmap] Milestones changed for jmap WG"
+
+test "split simple":
+  let part = parse_email("""
+Subject: Transfiguration de Notre-Seigneur
+Content-Type: multipart/alternative; boundary="000000000000cc18b2060229015c"
+Delivered-To: <somewhere>
+
+--000000000000cc18b2060229015c
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Voici le programme pour ce dimanche ;
+
+Entr=C3=A9e : Orgue
+Kyriale : IV
+Credo : IV
+Offertoire : Jesu dulcis memoria
+Communion : O Memoriale
+Sortie : En plein c=C5=93ur de l'=C3=A9glise
+
+--000000000000cc18b2060229015c
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<p>Voici le programme pour ce dimanche ;</p>
+
+<p>Entr=C3=A9e : Orgue<br/>
+Kyriale : IV<br/>
+Credo : IV<br/>
+Offertoire : Jesu dulcis memoria<br/>
+Communion : O Memoriale<br/>
+Sortie : En plein c=C5=93ur de l'=C3=A9glise</p>
+
+--000000000000cc18b2060229015c--
+""".replace("\n", "\r\n"))
+  # echo part
+  assert part.headers.len == 3
+  assert part.sub_parts.len == 3
+  assert part.body == ""
+  assert part.sub_parts[0].boundary == "--000000000000cc18b2060229015c\r\n"
+  assert part.sub_parts[0].headers.len == 2
+  assert part.sub_parts[0].headers[0] == "Content-Type: text/plain; charset=\"UTF-8\"\r\n"
+  assert part.sub_parts[0].headers[1] == "Content-Transfer-Encoding: quoted-printable\r\n"
+  assert part.sub_parts[1].boundary == "\r\n--000000000000cc18b2060229015c\r\n"
+  assert part.sub_parts[1].headers.len == 2
+  assert part.sub_parts[1].headers[0] == "Content-Type: text/html; charset=\"UTF-8\"\r\n"
+  assert part.sub_parts[1].headers[1] == "Content-Transfer-Encoding: quoted-printable\r\n"
+  assert part.sub_parts[2].boundary == "\r\n--000000000000cc18b2060229015c--\r\n"
+  assert part.sub_parts[2].headers.len == 0
+  assert part.sub_parts[2].body == ""

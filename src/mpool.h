@@ -58,14 +58,19 @@ struct mpool;
 
 /* Create a new pool -- pass zero for default */
 /* 'size' is the size of the first blob of memory that will be allocated */
+EXTERN
 struct mpool *new_mpool(size_t size);
 
 /* Free a pool */
+EXTERN
 void free_mpool(struct mpool *pool);
 
 /* Allocate from a pool */
+EXTERN
 void *mpool_malloc(struct mpool *pool, size_t size);
+EXTERN
 char *mpool_strdup(struct mpool *pool, const char *str);
+EXTERN
 char *mpool_strndup(struct mpool *pool, const char *str, size_t n);
 
 #endif /* _MPOOL_H_ */

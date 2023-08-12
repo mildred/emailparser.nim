@@ -41,6 +41,7 @@ typedef struct hash_table {
 ** the table's size to 0, and the pointer to the table to NULL.
 */
 
+EXTERN
 hash_table *construct_hash_table(hash_table *table, size_t size,
                                  int use_mpool);
 
@@ -50,6 +51,7 @@ hash_table *construct_hash_table(hash_table *table, size_t size,
 ** associated data.
 */
 
+EXTERN
 void *hash_insert(const char *key,void *data,hash_table *table);
 
 /*
@@ -57,6 +59,7 @@ void *hash_insert(const char *key,void *data,hash_table *table);
 ** not been inserted in the table, returns NULL.
 */
 
+EXTERN
 void *hash_lookup(const char *key,hash_table *table);
 
 /*
@@ -66,6 +69,7 @@ void *hash_lookup(const char *key,hash_table *table);
 */
 /* Warning: use this function judiciously if you are using memory pools,
  * since it will leak memory until you get rid of the entire hash table */
+EXTERN
 void *hash_del(const char *key,hash_table *table);
 
 /*
@@ -77,16 +81,20 @@ void *hash_del(const char *key,hash_table *table);
 ** sorted order.  It's slower but consistent
 */
 
+EXTERN
 void hash_enumerate(hash_table *table,void (*func)(const char *,void *,void *),
                     void *rock);
+EXTERN
 void hash_enumerate_sorted(hash_table *table,void (*func)(const char *,void *,void *),
                     void *rock, strarray_cmp_fn_t *cmp);
 
 /* gets all the keys from the hashtable */
+EXTERN
 strarray_t *hash_keys(hash_table *table);
 
 /* counts the number of nodes in the hash table */
 
+EXTERN
 int hash_numrecords(hash_table *table);
 
 /*
@@ -101,6 +109,7 @@ int hash_numrecords(hash_table *table);
 ** any function with the data. )
 */
 
+EXTERN
 void free_hash_table(hash_table *table, void (*func)(void *));
 
 /*
@@ -111,25 +120,32 @@ typedef struct hash_iter hash_iter;
 
 /* Creates an iterator for the hash table. The iterator points
  * *before* the first entry, if any. */
+EXTERN
 hash_iter *hash_table_iter(hash_table *table);
 
 /* Returns non-zero if the iterator has more entries. */
+EXTERN
 int hash_iter_has_next(hash_iter *iter);
 
 /* Forwards the iterator to the next entry and returns its key.
 ** If there is no more entry, the return value is NULL. */
+EXTERN
 const char *hash_iter_next(hash_iter *iter);
 
 /* Returns the key of the current entry. */
+EXTERN
 const char *hash_iter_key(hash_iter *iter);
 
 /* Returns the value of the current entry.*/
+EXTERN
 void *hash_iter_val(hash_iter *iter);
 
 /* Resets the iterator to point before the first entry. */
+EXTERN
 void hash_iter_reset(hash_iter *);
 
 /* Frees the iterator. */
+EXTERN
 void hash_iter_free(hash_iter **iterptr);
 
 #endif /* HASH__H */

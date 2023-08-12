@@ -1155,7 +1155,8 @@ message_parse_header(const char *hdr, struct buf *buf)
 /*
  * Parse a Content-Type from a header.
  */
-EXPORTED void message_parse_type(const char *hdr, char **typep, char **subtypep, struct param **paramp)
+// EXPORTED
+void message_parse_type(const char *hdr, char **typep, char **subtypep, struct param **paramp)
 {
     const char *type;
     int typelen;

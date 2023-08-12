@@ -1,38 +1,4 @@
-{.compile: "arrayu64.c".}
-{.compile: "charset.c".}
-{.compile: "chartable.c".}
-{.compile: "gmtoff_gmtime.c".}
-{.compile: "gmtoff_tm.c".}
-{.compile: "hash.c".}
-{.compile: "htmlchar.c".}
-{.compile: "imapparse.c".}
-{.compile: "imparse.c".}
-{.compile: "jmap_api.c".}
-{.compile: "jmap_mail.c".}
-{.compile: "jmap_mail_query.c".}
-{.compile: "jmap_util.c".}
-{.compile: "json_support.c".}
-{.compile: "mailbox.c".}
-{.compile: "message.c".}
-{.compile: "message_guid.c".}
-{.compile: "mkgmtime.c".}
-{.compile: "mpool.c".}
-{.compile: "msgrecord.c".}
-{.compile: "nim_glue.c".}
-{.compile: "parseaddr.c".}
-{.compile: "prot.c".}
-{.compile: "ptrarray.c".}
-{.compile: "rfc822_header.c".}
-{.compile: "rfc822tok.c".}
-{.compile: "sequence.c".}
-{.compile: "strarray.c".}
-{.compile: "strhash.c".}
-{.compile: "stristr.c".}
-{.compile: "times.c".}
-{.compile: "util.c".}
-{.compile: "xmalloc.c".}
-{.compile: "xsha1.c".}
-{.compile: "xstrlcpy.c".}
+{.compile: "emailparser.c".}
 {.passc: gorge("icu-config --cppflags").}
 {.passl: gorge("icu-config --ldflags").}
 {.passl: gorge("pkg-config --libs jansson uuid").}
@@ -40,6 +6,7 @@
 import std/json
 import std/options
 import std/strutils
+import std/strformat
 import std/tables
 
 type CyrusMsg {.importc: "struct cyrusmsg".} = object # private
@@ -143,6 +110,17 @@ proc header_value(header: string): string =
   if i+1 < header.len:
     result = header[i+1 .. header.len-1]
 
+proc parse_header*(header: string): tuple[name: string, sep: string, raw_value: string] =
+  var i = 0
+  while i < header.len and header[i] != ':':
+    result.name.add(header[i])
+    i += 1
+  while i < header.len and (header[i] == ':' or header[i] == ' '):
+    result.sep.add(header[i])
+    i += 1
+  if i+1 < header.len:
+    result.raw_value = header[i .. header.len-1]
+
 proc parse_header_get_boundary(header: string, boundary: var string): string =
   result = header
   if header_name(header) == "content-type":
@@ -185,6 +163,8 @@ type Stop = object
 
 # RFC1341: the start line CRLF is considered to be part of the boundary
 func is_stop_boundary(mime: string, i: int, boundaries: seq[string], stop: var Stop): bool =
+  # {.nosideeffect.}:
+  #   echo &"is_stop_boundary({i}, {mime.substr(i, i+40).repr}, {boundaries})"
   if i != 0 and mime[i] != '\r':
     return false
   for boundary in boundaries:
@@ -273,18 +253,28 @@ proc parse_mime(mime: string, i: var int, boundaries: seq[string], stop: var Sto
 
   # Parse prologue
   start = i
-  while true:
-    if i >= len(mime) or is_stop_boundary(mime, i, boundaries, stop):
-      if start < i:
-        part.body = mime[start .. i-1]
-      return
-    if body_boundary != "" and has_substr_at(mime, i, "\r\n--" & body_boundary & "\r\n"):
-      if start < i: part.body = mime[start .. i-1]
-      start = i
-      i += len(body_boundary) + 6
-      next_boundary = mime[start .. i-1]
-      break
-    i += 1
+
+  let body_delimiter0 = &"--{body_boundary}\r\n"
+  if body_boundary != "" and has_substr_at(mime, i, body_delimiter0):
+    # Special case, no prologue and single CRLF:
+    part.body = ""
+    i += len(body_delimiter0)
+    next_boundary = mime[start .. i-1]
+  else:
+    # There is a prologue or at least two CRLF
+    let body_delimiter = &"\r\n--{body_boundary}\r\n"
+    while true:
+      if i >= len(mime) or is_stop_boundary(mime, i, boundaries, stop):
+        if start < i:
+          part.body = mime[start .. i-1]
+        return
+      if body_boundary != "" and has_substr_at(mime, i, body_delimiter):
+        if start < i: part.body = mime[start .. i-1]
+        start = i
+        i += len(body_delimiter)
+        next_boundary = mime[start .. i-1]
+        break
+      i += 1
 
   # Parse parts
   while true:
@@ -302,7 +292,6 @@ proc parse_mime(mime: string, i: var int, boundaries: seq[string], stop: var Sto
     if stop.final: break
 
     stop = Stop()
-    i += 1
 
   # Parse epilogue
   stop = Stop()
@@ -325,3 +314,13 @@ proc parse_email*(mime: string): Part =
   var i = 0
   var stop: Stop
   parse_mime(mime, i, @[], stop, result)
+
+proc append_to(part: Part, res: var string) =
+  res.add(part.boundary)
+  for header in part.headers:
+    res.add(header)
+  res.add(part.crlf)
+  res.add(part.body)
+
+proc to_email*(item: Part): string =
+  item.append_to(result)

@@ -69,10 +69,14 @@ typedef uint8_t sha1_byte;    /* single byte type */
 /* opaque type for the SHA1 structure: */
 typedef struct _SHA_CTX SHA_CTX;
 
+EXTERN
 int SHA1_Init(SHA_CTX* context);
+EXTERN
 int SHA1_Update(SHA_CTX *context, const sha1_byte *data, unsigned int len);
+EXTERN
 int SHA1_Final(sha1_byte digest[SHA1_DIGEST_LENGTH], SHA_CTX *context);
 
+EXTERN
 unsigned char *xsha1(const unsigned char *buf, unsigned long len,
               sha1_byte dest[SHA1_DIGEST_LENGTH]);
 

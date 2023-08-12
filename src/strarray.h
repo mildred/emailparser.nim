@@ -58,29 +58,51 @@ typedef struct
 
 #define STRARRAY_INITIALIZER    { 0, 0, NULL }
 #define strarray_init(sa)   (memset((sa), 0, sizeof(strarray_t)))
+EXTERN
 void strarray_fini(strarray_t *);
 
+EXTERN
 strarray_t *strarray_new(void);
+EXTERN
 void strarray_free(strarray_t *);
 
+EXTERN
 int strarray_append(strarray_t *, const char *);
+EXTERN
 int strarray_add(strarray_t *, const char *);
+EXTERN
 int strarray_add_case(strarray_t *, const char *);
+EXTERN
 int strarray_appendm(strarray_t *, char *);
+EXTERN
 void strarray_set(strarray_t *, int idx, const char *);
+EXTERN
 void strarray_setm(strarray_t *, int idx, char *);
+EXTERN
 void strarray_insert(strarray_t *, int idx, const char *);
+EXTERN
 void strarray_insertm(strarray_t *, int idx, char *);
+EXTERN
 char *strarray_remove(strarray_t *, int idx);
+EXTERN
 void strarray_remove_all(strarray_t *sa, const char *s);
+EXTERN
 void strarray_remove_all_case(strarray_t *sa, const char *s);
+EXTERN
 const char *strarray_nth(const strarray_t *sa, int idx);
+EXTERN
 const char *strarray_safenth(const strarray_t *sa, int idx);
+EXTERN
 void strarray_truncate(strarray_t *sa, int newlen);
+EXTERN
 strarray_t *strarray_dup(const strarray_t *);
+EXTERN
 void strarray_cat(strarray_t *dest, const strarray_t *src);
+EXTERN
 void strarray_swap(strarray_t *, int, int);
+EXTERN
 void strarray_addfirst(strarray_t *, const char *);
+EXTERN
 void strarray_addfirst_case(strarray_t *, const char *);
 
 #define strarray_shift(sa)          strarray_remove((sa), 0)
@@ -91,31 +113,45 @@ void strarray_addfirst_case(strarray_t *, const char *);
 #define strarray_push(sa, s)        strarray_append((sa), (s))
 #define strarray_pushm(sa, s)       strarray_appendm((sa), (s))
 
+EXTERN
 char *strarray_join(const strarray_t *, const char *sep);
 #define STRARRAY_TRIM (1<<0)
+EXTERN
 strarray_t *strarray_splitm(char *buf, const char *sep, int flags);
+EXTERN
 strarray_t *strarray_split(const char *buf, const char *sep, int flags);
+EXTERN
 strarray_t *strarray_nsplit(const char *buf, size_t len, const char *sep, int flags);
 
 /* strarray_cmp_fn_t is same sig as qsort's compar argument */
 typedef int strarray_cmp_fn_t(const void *, const void *);
+EXTERN
 void strarray_sort(strarray_t *, strarray_cmp_fn_t *);
 
+EXTERN
 void strarray_uniq(strarray_t *);
 
+EXTERN
 char **strarray_safetakevf(strarray_t *sa);
+EXTERN
 char **strarray_takevf(strarray_t *sa);
 
+EXTERN
 int strarray_find(const strarray_t *sa, const char *match,
                   int starting);
+EXTERN
 int strarray_find_case(const strarray_t *sa, const char *match,
                        int starting);
 
+EXTERN
 int strarray_intersect(const strarray_t *sa, const strarray_t *b);
+EXTERN
 int strarray_intersect_case(const strarray_t *sa, const strarray_t *b);
 
+EXTERN
 int strarray_size(const strarray_t *sa);
 
+EXTERN
 int strarray_cmp(const strarray_t *a, const strarray_t *b);
 
 #endif /* __CYRUS_STRARRAY_H__ */

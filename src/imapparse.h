@@ -48,6 +48,7 @@
 // #include "index.h"
 
 /* imap parsing functions (imapparse.c) */
+EXTERN
 int getword(struct protstream *in, struct buf *buf);
 
 /* Flags for getxstring() */
@@ -72,6 +73,7 @@ enum getxstring_flags {
     IMAP_NASTRING = GXS_NIL|GXS_ATOM|GXS_QUOTED|GXS_LITERAL,
 };
 
+EXTERN
 int getxstring(struct protstream *pin, struct protstream *pout,
                struct buf *buf, enum getxstring_flags);
 #define getastring(pin, pout, buf) getxstring((pin), (pout), (buf), IMAP_ASTRING)
@@ -82,14 +84,22 @@ int getxstring(struct protstream *pin, struct protstream *pout,
 #define getstring(pin, pout, buf) getxstring((pin), (pout), (buf), IMAP_STRING)
 #define getnastring(pin, pout, buf) getxstring((pin), (pout), (buf), IMAP_NASTRING)
 #define getcharset(pin, pout, buf) getxstring((pin), (pout), (buf), GXS_ATOM|GXS_QUOTED)
+EXTERN
 int getint32(struct protstream *pin, int *num);
+EXTERN
 int getint64(struct protstream *pin, int64_t *num);
+EXTERN
 int getsint32(struct protstream *pin, int *num);
+EXTERN
 int getsint64(struct protstream *pin, int64_t *num);
+EXTERN
 int getuint32(struct protstream *pin, unsigned int *num);
+EXTERN
 int getuint64(struct protstream *pin, uint64_t *num);
+EXTERN
 int getmodseq(struct protstream *pin, modseq_t *num);
 
+EXTERN
 void eatline(struct protstream *pin, int c);
 
 // int get_search_program(struct protstream *pin, struct protstream *pout, struct searchargs *searchargs);

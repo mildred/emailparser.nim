@@ -68,6 +68,7 @@ extern unsigned int seq_lastnum(const char *list, const char **numstart);
 
 /* for writing */
 extern struct seqset *seqset_init(unsigned maxval, int flags);
+EXTERN
 void seqset_add(struct seqset *seq, unsigned num, int ismember);
 
 extern struct seqset *seqset_parse(const char *sequence,

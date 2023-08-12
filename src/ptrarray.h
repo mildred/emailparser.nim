@@ -58,17 +58,27 @@ typedef struct
 
 #define PTRARRAY_INITIALIZER    { 0, 0, NULL }
 #define ptrarray_init(pa)   (memset((pa), 0, sizeof(ptrarray_t)))
+EXTERN
 void ptrarray_fini(ptrarray_t *);
 
+EXTERN
 ptrarray_t *ptrarray_new(void);
+EXTERN
 void ptrarray_free(ptrarray_t *);
 
+EXTERN
 void ptrarray_append(ptrarray_t *, void *);
+EXTERN
 void ptrarray_add(ptrarray_t *, void *);
+EXTERN
 void ptrarray_set(ptrarray_t *, int idx, void *);
+EXTERN
 void ptrarray_insert(ptrarray_t *, int idx, void *);
+EXTERN
 void *ptrarray_remove(ptrarray_t *, int idx);
+EXTERN
 void *ptrarray_nth(const ptrarray_t *pa, int idx);
+EXTERN
 void ptrarray_truncate(ptrarray_t *pa, int newlen);
 
 #define ptrarray_shift(pa)          ptrarray_remove((pa), 0)
@@ -80,13 +90,17 @@ void ptrarray_truncate(ptrarray_t *pa, int newlen);
 #define ptrarray_tail(pa)           ptrarray_nth((pa), -1)
 #define ptrarray_head(pa)           ptrarray_nth((pa), 0)
 
+EXTERN
 void **ptrarray_takevf(ptrarray_t *pa);
 
+EXTERN
 int ptrarray_find(const ptrarray_t *pa, void *match,
                   int starting);
 
+EXTERN
 void ptrarray_sort(ptrarray_t *pa, int (*compare)(const void **, const void **));
 
+EXTERN
 int ptrarray_size(const ptrarray_t *pa);
 
 #endif /* __CYRUS_PTRARRAY_H__ */

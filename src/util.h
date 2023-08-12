@@ -164,14 +164,18 @@ extern char *beautify_string (const char *src);
 
 /* Same semantics as strcmp() but gracefully handles
  * either or both it's arguments being NULL */
+EXTERN
 int strcmpsafe(const char *a, const char *b);
 /* Same semantics as strcasecmp() but gracefully handles
  * either or both it's arguments being NULL */
+EXTERN
 int strcasecmpsafe(const char *a, const char *b);
 /* ditto strncmp */
+EXTERN
 int strncmpsafe(const char *a, const char *b, size_t n);
 
 /* NULL isn't "" */
+EXTERN
 int strcmpnull(const char *a, const char *b);
 
 /* do a binary search in a keyvalue array
@@ -238,10 +242,15 @@ enum {
  */
 
 #define cyrus_isdigit(x) ((x) >= '0' && (x) <= '9')
+EXTERN
 int parseint32(const char *p, const char **ptr, int32_t *res);
+EXTERN
 int parseuint32(const char *p, const char **ptr, uint32_t *res);
+EXTERN
 int parsenum(const char *p, const char **ptr, int maxlen, bit64 *res);
+EXTERN
 int parsehex(const char *p, const char **ptr, int maxlen, bit64 *res);
+EXTERN
 uint64_t str2uint64(const char *p);
 
 /* Timing related funcs/vars */
@@ -274,60 +283,107 @@ struct buf {
 #define buf_ensure(b, n) do { if ((b)->alloc < (b)->len + (n)) _buf_ensure((b), (n)); } while (0)
 #define buf_putc(b, c) do { buf_ensure((b), 1); (b)->s[(b)->len++] = (c); } while (0)
 
+EXTERN
 void _buf_ensure(struct buf *buf, size_t len);
+EXTERN
 const char *buf_cstring(const struct buf *buf);
+EXTERN
 const char *buf_cstringnull(const struct buf *buf);
+EXTERN
 const char *buf_cstringnull_ifempty(const struct buf *buf);
+EXTERN
 char *buf_release(struct buf *buf);
+EXTERN
 char *buf_newcstring(struct buf *buf);
+EXTERN
 char *buf_releasenull(struct buf *buf);
+EXTERN
 void buf_getmap(struct buf *buf, const char **base, size_t *len);
+EXTERN
 int buf_getline(struct buf *buf, FILE *fp);
+EXTERN
 size_t buf_len(const struct buf *buf);
+EXTERN
 const char *buf_base(const struct buf *buf);
+EXTERN
 void buf_reset(struct buf *buf);
+EXTERN
 void buf_truncate(struct buf *buf, ssize_t len);
+EXTERN
 void buf_setcstr(struct buf *buf, const char *str);
+EXTERN
 void buf_setmap(struct buf *buf, const char *base, size_t len);
+EXTERN
 void buf_copy(struct buf *dst, const struct buf *src);
+EXTERN
 void buf_append(struct buf *dst, const struct buf *src);
+EXTERN
 void buf_appendcstr(struct buf *buf, const char *str);
+EXTERN
 void buf_appendoverlap(struct buf *buf, const char *str);
+EXTERN
 void buf_appendbit32(struct buf *buf, bit32 num);
+EXTERN
 void buf_appendbit64(struct buf *buf, bit64 num);
+EXTERN
 void buf_appendmap(struct buf *buf, const char *base, size_t len);
+EXTERN
 void buf_cowappendmap(struct buf *buf, const char *base, unsigned int len);
+EXTERN
 void buf_cowappendfree(struct buf *buf, char *base, unsigned int len);
+EXTERN
 void buf_insert(struct buf *dst, unsigned int off, const struct buf *src);
+EXTERN
 void buf_insertcstr(struct buf *buf, unsigned int off, const char *str);
+EXTERN
 void buf_insertmap(struct buf *buf, unsigned int off, const char *base, int len);
+EXTERN
 void buf_vprintf(struct buf *buf, const char *fmt, va_list args);
+EXTERN
 void buf_printf(struct buf *buf, const char *fmt, ...)
                 __attribute__((format(printf,2,3)));
+EXTERN
 int buf_replace_all(struct buf *buf, const char *match,
                     const char *replace);
+EXTERN
 int buf_replace_char(struct buf *buf, char match, char replace);
 #ifdef ENABLE_REGEX
+EXTERN
 int buf_replace_all_re(struct buf *buf, const regex_t *,
                        const char *replace);
+EXTERN
 int buf_replace_one_re(struct buf *buf, const regex_t *,
                        const char *replace);
 #endif
+EXTERN
 void buf_remove(struct buf *buf, unsigned int off, unsigned int len);
+EXTERN
 int buf_cmp(const struct buf *, const struct buf *);
+EXTERN
 int buf_findchar(const struct buf *, unsigned int off, int c);
+EXTERN
 int buf_findline(const struct buf *buf, const char *line);
+EXTERN
 void buf_init(struct buf *buf);
+EXTERN
 void buf_init_ro(struct buf *buf, const char *base, size_t len);
+EXTERN
 void buf_initm(struct buf *buf, char *base, int len);
+EXTERN
 void buf_init_ro_cstr(struct buf *buf, const char *str);
 // void buf_init_mmap(struct buf *buf, int onceonly, int fd,
 //                    const char *fname, size_t size, const char *mboxname);
+EXTERN
 void buf_free(struct buf *buf);
+EXTERN
 void buf_move(struct buf *dst, struct buf *src);
+EXTERN
 const char *buf_lcase(struct buf *buf);
+EXTERN
 const char *buf_ucase(struct buf *buf);
+EXTERN
 const char *buf_tocrlf(struct buf *buf);
+EXTERN
 void buf_trim(struct buf *buf);
 
 /*
@@ -339,6 +395,7 @@ void buf_trim(struct buf *buf);
  * This API idea based on glib's g_strconcat() which
  * is really quite amazingly convenient.
  */
+EXTERN
 char *strconcat(const char *s1, ...);
 
 #define BH_LOWER            (0)
@@ -346,8 +403,11 @@ char *strconcat(const char *s1, ...);
 #define _BH_SEP             (1<<9)
 #define BH_SEPARATOR(c)     (_BH_SEP|((c)&0x7f))
 #define _BH_GETSEP(flags)   (flags & _BH_SEP ? (char)(flags & 0x7f) : '\0')
+EXTERN
 int bin_to_hex(const void *bin, size_t binlen, char *hex, int flags);
+EXTERN
 int bin_to_lchex(const void *bin, size_t binlen, char *hex);
+EXTERN
 int hex_to_bin(const char *hex, size_t hexlen, void *bin);
 
 /* use getpassphrase on machines which support it */
@@ -364,7 +424,9 @@ enum {
     DEFLATE_ZLIB
 };
 
+EXTERN
 int buf_inflate(struct buf *buf, int scheme);
+EXTERN
 int buf_deflate(struct buf *buf, int compLevel, int scheme);
 #endif
 
@@ -396,6 +458,7 @@ int buf_deflate(struct buf *buf, int compLevel, int scheme);
 /* simple function to request a file gets pre-loaded by the OS */
 // int warmup_file(const char *filename, off_t offset, off_t length);
 
+EXTERN
 const char *makeuuid();
 
 // void tcp_enable_keepalive(int fd);

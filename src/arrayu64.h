@@ -59,24 +59,24 @@ typedef struct
 
 #define ARRAYU64_INITIALIZER    { 0, 0, NULL }
 #define arrayu64_init(sa)   (memset((sa), 0, sizeof(arrayu64_t)))
-void arrayu64_fini(arrayu64_t *);
+EXTERN void arrayu64_fini(arrayu64_t *);
 
-arrayu64_t *arrayu64_new(void);
-void arrayu64_free(arrayu64_t *);
+EXTERN arrayu64_t *arrayu64_new(void);
+EXTERN void arrayu64_free(arrayu64_t *);
 
-int arrayu64_append(arrayu64_t *, uint64_t);
-int arrayu64_add(arrayu64_t *, uint64_t);
-int arrayu64_find(arrayu64_t *, uint64_t, int start);
-void arrayu64_set(arrayu64_t *, int idx, uint64_t);
-void arrayu64_insert(arrayu64_t *, int idx, uint64_t);
-uint64_t arrayu64_remove(arrayu64_t *, int idx);
+EXTERN int arrayu64_append(arrayu64_t *, uint64_t);
+EXTERN int arrayu64_add(arrayu64_t *, uint64_t);
+EXTERN int arrayu64_find(arrayu64_t *, uint64_t, int start);
+EXTERN void arrayu64_set(arrayu64_t *, int idx, uint64_t);
+EXTERN void arrayu64_insert(arrayu64_t *, int idx, uint64_t);
+EXTERN uint64_t arrayu64_remove(arrayu64_t *, int idx);
 /* returns number removed */
-int arrayu64_remove_all(arrayu64_t *, uint64_t);
-uint64_t arrayu64_nth(const arrayu64_t *, int idx);
-void arrayu64_truncate(arrayu64_t *, int newlen);
-arrayu64_t *arrayu64_dup(const arrayu64_t *);
+EXTERN int arrayu64_remove_all(arrayu64_t *, uint64_t);
+EXTERN uint64_t arrayu64_nth(const arrayu64_t *, int idx);
+EXTERN void arrayu64_truncate(arrayu64_t *, int newlen);
+EXTERN arrayu64_t *arrayu64_dup(const arrayu64_t *);
 
-uint64_t arrayu64_max(const arrayu64_t *);
+EXTERN uint64_t arrayu64_max(const arrayu64_t *);
 
 #define arrayu64_shift(sa)          arrayu64_remove((sa), 0)
 #define arrayu64_unshift(sa, s)     arrayu64_insert((sa), 0, (s))
@@ -86,10 +86,10 @@ uint64_t arrayu64_max(const arrayu64_t *);
 
 /* arrayu64_cmp_fn_t is same sig as qsort's compar argument */
 typedef int arrayu64_cmp_fn_t(const void *, const void *);
-void arrayu64_sort(arrayu64_t *, arrayu64_cmp_fn_t *);
+EXTERN void arrayu64_sort(arrayu64_t *, arrayu64_cmp_fn_t *);
 
-void arrayu64_uniq(arrayu64_t *);
+EXTERN void arrayu64_uniq(arrayu64_t *);
 
-int arrayu64_size(const arrayu64_t *);
+EXTERN int arrayu64_size(const arrayu64_t *);
 
 #endif /* __CYRUS_ARRAYU64_H__ */

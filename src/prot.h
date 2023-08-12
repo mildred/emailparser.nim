@@ -242,17 +242,21 @@ extern int prot_settls(struct protstream *s, SSL *tlsconn);
 
 /* Mark this protstream as a "client" for the purpose of generating
  * or consuming literals (thanks LITERAL+) */
+EXTERN
 int prot_setisclient(struct protstream *s, int val);
 
 #ifdef HAVE_ZLIB
 /* Enable (de)compression for a given protstream */
+EXTERN
 int prot_setcompress(struct protstream *s);
 
 /* Disable (de)compression for a given protstream */
+EXTERN
 void prot_unsetcompress(struct protstream *s);
 #endif /* HAVE_ZLIB */
 
 /* Tell the protstream that the type of data is about to change. */
+EXTERN
 int prot_data_boundary(struct protstream *s);
 
 /* Set a timeout for the connection (in seconds) */
@@ -314,24 +318,31 @@ extern char *prot_fgets(char *buf, unsigned size, struct protstream *s);
 /* Protgroup manipulations */
 /* Create a new protgroup of a certain size or as a copy of another
  * protgroup */
+EXTERN
 struct protgroup *protgroup_new(size_t size);
+EXTERN
 struct protgroup *protgroup_copy(struct protgroup *src);
 
 /* Cleanup a protgroup but don't release the allocated memory (so it can
  * be reused) */
+EXTERN
 void protgroup_reset(struct protgroup *group);
 
 /* Release memory for a protgroup */
+EXTERN
 void protgroup_free(struct protgroup *group);
 
 /* Insert an element into a protgroup */
+EXTERN
 void protgroup_insert(struct protgroup *group, struct protstream *item);
 
 /* Delete an element from a protgroup */
+EXTERN
 void protgroup_delete(struct protgroup *group, struct protstream *item);
 
 /* Returns the protstream at that position in the protgroup, or NULL if
  * an invalid element is requested */
+EXTERN
 struct protstream *protgroup_getelement(struct protgroup *group,
                                         size_t element);
 

@@ -48,10 +48,12 @@
 #include <string.h>
 #include <sysexits.h>
 
-#ifndef USE_EMSCRIPTEN
-#include <execinfo.h>
-#else
+#ifndef NO_BACKTRACE
+#ifdef USE_EMSCRIPTEN
 #include <emscripten.h>
+#else
+#include <execinfo.h>
+#endif
 #endif
 
 #include "xmalloc.h"
