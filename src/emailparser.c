@@ -68,4 +68,37 @@
 #include "xsha1.c"
 #include "xstrlcpy.c"
 
+bool emailparser_parse_datetime(
+    const char *datetime,
+    short *year,
+    unsigned short *month,
+    unsigned short *day,
+    unsigned short *hour,
+    unsigned short *minute,
+    unsigned short *second,
+    unsigned int *nanosecond,
+    int *tz_offset_seconds) {
+  struct offsettime t;
+  int res = offsettime_from_rfc5322(datetime, &t, DATETIME_FULL);
+  if (res < 0) return false;
+  *year = 1900 + t.tm.tm_year;
+  *month = t.tm.tm_mon;
+  *day = t.tm.tm_mday;
+  *hour = t.tm.tm_hour;
+  *minute = t.tm.tm_min;
+  *second = t.tm.tm_sec;
+  *tz_offset_seconds = t.tm_off;
+  return true;
+}
+
+int emailparser_datetime_rfc5322_to_iso8601(
+    const char *datetime,
+    char *buf,
+    size_t cap,
+    int with_sep) {
+  struct offsettime t;
+  int res = offsettime_from_rfc5322(datetime, &t, DATETIME_FULL);
+  if (res < 0) return res;
+  return offsettime_to_iso8601(&t, buf, cap, with_sep);
+}
 

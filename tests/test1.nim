@@ -181,3 +181,11 @@ Sortie : En plein c=C5=93ur de l'=C3=A9glise</p>
   assert part.sub_parts[2].boundary == "\r\n--000000000000cc18b2060229015c--\r\n"
   assert part.sub_parts[2].headers.len == 0
   assert part.sub_parts[2].body == ""
+
+test "parsing date with separator":
+  let res = datetime_rfc5322_to_iso8601("Tue, 09 Nov 2021 20:54:47 -0800", true)
+  assert res == "2021-11-09T20:54:47-08:00"
+
+test "parsing date without separator":
+  let res = datetime_rfc5322_to_iso8601("Tue, 09 Nov 2021 20:54:47 -0800", false)
+  assert res == "20211109T205447-08:00"

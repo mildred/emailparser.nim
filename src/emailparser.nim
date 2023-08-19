@@ -324,3 +324,13 @@ proc append_to(part: Part, res: var string) =
 
 proc to_email*(item: Part): string =
   item.append_to(result)
+
+proc c_emailparser_datetime_rfc5322_to_iso8601(rfc5322: cstring, iso8601: cstring, capacity: csize_t, with_sep: cint): cint {.importc: "emailparser_datetime_rfc5322_to_iso8601".}
+
+proc datetime_rfc5322_to_iso8601*(rfc5322: string, with_sep: bool = true): string =
+  setLen(result, 32)
+  let rlen = c_emailparser_datetime_rfc5322_to_iso8601(cstring(rfc5322), cstring(result), 32, if with_sep: 1 else: 0)
+  if rlen < 0:
+    result = ""
+  else:
+    setLen(result, rlen)
